@@ -51,6 +51,37 @@ UKF::UKF() {
 
   Hint: one or more values initialized above might be wildly off...
   */
+  //set state dimension
+  n_x = 5;
+
+  //set augmented dimension
+  n_aug = 7;
+    
+  //define spreading parameter
+  lambda = 3 - n_aug;
+  
+  n_sigma_points =2*n_aug+1;
+    
+    ///* augmented sigma points matrix
+    Xsig_aug_ = MatrixXd(n_aug_, n_sigma_points);
+   
+    ///* predicted sigma points matrix
+    Xsig_pred_ = MatrixXd(n_x_, n_sigma_points);
+    
+    /// set vector for weights
+    
+    weights_ = VectorXd(n_sigma_points_);
+    double weight_0 = lambda_ / (lambda_ + n_aug);
+    weights_(0) = weight_0;
+
+    for (int i=1; i<n_sigma_points; i++) {
+        double weight = 0.5/(n_aug+lambda);
+        weights_(i) = weight;
+    }
+    
+    
+
+    
 }
 
 UKF::~UKF() {}
@@ -66,6 +97,49 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   Complete this function! Make sure you switch between lidar and radar
   measurements.
   */
+    if (!is_initialized_) {
+        
+        //x_ << 1, 1, 1, 1;
+        P_ << 1., 0., 0., 0.,0.,
+            0., 1., 0., 0., 0.,
+            0., 0., 1., 0., 0.,
+            0., 0., 0., 1., 0.,
+            0., 0., 0., 0., 1.;
+        
+        if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+            
+            // convert from polar to Cartesian
+            float rho = meas_package.raw_measurements_[0];
+            float phi = meas_package.raw_measurements_[1];
+            
+            x_ << rho * cos(phi), rho * sin(phi), 0, 0, 0;
+        }
+        else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+            
+            x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
+        }
+        // initialize the timestamp
+        previous_timestamp_ = meas_package.timestamp_;
+        
+        // done initializing, no need to predict or update
+        is_initialized_ = true;
+        return;
+
+    }
+   
+    float dt = (meas_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
+    
+    previous_timestamp_ = meas_pack.timestamp_;
+    
+    Prediction(dt);
+    
+    if (meas_pack.sensor_type_ == MeasurementPackage::RADAR) {
+        // Radar updates
+        UpdateRadar(meas_package);
+    } else {
+        // Laser
+        ekf_.Update(meas_package);
+    }
 }
 
 /**
