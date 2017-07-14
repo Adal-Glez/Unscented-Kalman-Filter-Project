@@ -172,7 +172,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
     //MatrixXd Xsig_aug(n_aug_, n_aug_sigma_);
     AugmentedSigmaPoints();
     SigmaPointPrediction();
-    predict mean and cov
+    PredictMeanAndCovariance();
 }
 
 
@@ -277,6 +277,30 @@ void UKF::SigmaPointPrediction() {
     
     
 }
+
+void UKF::PredictMeanAndCovariance() {
+    
+    //predicted state mean
+    x.fill(0.0);
+    for (int i = 0; i < 2 * n_aug + 1; i++) {  //iterate over sigma points
+        x = x+ weights(i) * Xsig_pred.col(i);
+    }
+    
+    //predicted state covariance matrix
+    P.fill(0.0);
+    for (int i = 0; i < 2 * n_aug + 1; i++) {  //iterate over sigma points
+        
+        // state difference
+        VectorXd x_diff = Xsig_pred.col(i) - x;
+        //angle normalization
+        while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
+        while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
+        
+        P = P + weights(i) * x_diff * x_diff.transpose() ;
+    }
+    
+}
+
 
 /**
  * Updates the state and the state covariance matrix using a radar measurement.
