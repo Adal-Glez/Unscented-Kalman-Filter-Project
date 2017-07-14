@@ -178,21 +178,6 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 
 void UKF::AugmentedSigmaPoints() {
     
-    //set state dimension
-    //int n_x = 7;
-    
-    //set augmented dimension
-    int n_aug = 7;
-    
-    //Process noise standard deviation longitudinal acceleration in m/s^2
-    double std_a = 0.2;
-    
-    //Process noise standard deviation yaw acceleration in rad/s^2
-    double std_yawdd = 0.2;
-    
-    //define spreading parameter
-    double lambda = 3 - n_aug;
-    
     //create augmented mean vector
     VectorXd x_aug = VectorXd(n_aug);
     
