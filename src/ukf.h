@@ -30,8 +30,11 @@ public:
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
-
-  ///* time when the state is true, in us
+  
+  ///* aug sigma points matrix
+  MatrixXd Xsig_aug_;
+  
+    ///* time when the state is true, in us
   long long time_us_;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
@@ -76,6 +79,9 @@ public:
     
   ///* the current NIS for lidar
   double NIS_lidar_;
+  
+  // previous timestamp
+  long previous_timestamp_;
 
 
   /**
@@ -112,6 +118,11 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  void AugmentedSigmaPoints();
+  void SigmaPointPrediction(float delta_t);
+  void PredictMeanAndCovariance();
+  void PredictLidarMeasurement();
+  void UpdateState(MeasurementPackage meas_package);
 };
 
 #endif /* UKF_H */
