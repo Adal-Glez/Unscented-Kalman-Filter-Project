@@ -118,11 +118,35 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /*
+   *generates sigma points and them as columns of matrix Xsig_aug
+  */
   void AugmentedSigmaPoints(const VectorXd &x, const MatrixXd &P, MatrixXd &Xsig_aug);
+  
+  /*
+   *predict sigma points and store them into right column
+  */
   void SigmaPointPrediction(float delta_t, const MatrixXd &Xsig_aug, MatrixXd &Xsig_pred);
+    
+
+  /*
+   *predict mean and covariance set mean predict state cov matrix
+  */
   void PredictMeanAndCovariance(const MatrixXd &Xsig_pred, VectorXd &x, MatrixXd &P);
+    
+  /*
+   *predict lidar measurements,  transform points into measurable space, calc mean predicted measurement, and meas cov matrix S
+  */
   void PredictLidarMeasurement(const MatrixXd &Xsig_pred, MatrixXd &Zsig_lidar_, VectorXd &z_pred_lidar, MatrixXd &S);
+
+  /*
+   *Update state measurments
+  */
   void UpdateState(const VectorXd &z, const VectorXd &z_pred_lidar, const MatrixXd &S,const MatrixXd &Xsig_pred, const MatrixXd &Zsig, VectorXd &x, MatrixXd &P);
+  /*
+   *predict radar measurements,  transform points into measurable space, calc mean predicted measurement, and meas cov matrix S 
+  */
   void PredictRadarMeasurement(const MatrixXd &Xsig_pred, MatrixXd &Zsig, VectorXd &z_pred, MatrixXd &S);
 };
 
