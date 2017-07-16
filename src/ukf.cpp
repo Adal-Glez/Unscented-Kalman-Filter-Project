@@ -24,10 +24,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+    std_a_ = 2;      //30;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 30;
+  std_yawdd_ = 1;  // 30;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -36,10 +36,10 @@ UKF::UKF() {
   std_laspy_ = 0.15;
 
   // Radar measurement noise standard deviation radius in m
-  std_radr_ = 0.3;
+  std_radr_ = 0.3; //
 
   // Radar measurement noise standard deviation angle in rad
-  std_radphi_ = 0.03;
+  std_radphi_ = 0.03;   //
 
   // Radar measurement noise standard deviation radius change in m/s
   std_radrd_ = 0.3;
@@ -222,7 +222,14 @@ void UKF::PredictLidarMeasurement(const MatrixXd &Xsig_pred, MatrixXd &Zsig_lida
     R(1,1) = std_laspy_ * std_laspy_;
     
     S = S + R;
-
+    
+    //print result
+    //std::cout << "z_pred: " << std::endl << z_pred << std::endl;
+    //std::cout << "S: " << std::endl << S << std::endl;
+    
+    //write result
+    //*z_out = z_pred;
+    //*S_out = S;
 }
 
 void UKF::UpdateState(const VectorXd &z, const VectorXd &z_pred_lidar, const MatrixXd &S,const MatrixXd &Xsig_pred,const MatrixXd &Zsig_lidar_, VectorXd &x, MatrixXd &P) {
@@ -266,6 +273,13 @@ void UKF::UpdateState(const VectorXd &z, const VectorXd &z_pred_lidar, const Mat
     x = x + K * z_diff;
     P = P - K*S*K.transpose();
     
+    //print result
+    //std::cout << "Updated state x: " << std::endl << x << std::endl;
+    //std::cout << "Updated state covariance P: " << std::endl << P << std::endl;
+    
+    //write result
+    //*x_out = x;
+    //*P_out = P;
 }
 
 /**
@@ -350,6 +364,13 @@ void UKF::PredictRadarMeasurement(const MatrixXd &Xsig_pred, MatrixXd &Zsig, Vec
     
     S = S+R;
     
+    //print result
+    //std::cout << "z_pred: " << std::endl << z_pred << std::endl;
+    //std::cout << "S: " << std::endl << S << std::endl;
+    
+    //write result
+    //*z_out = z_pred;
+    //*S_out = S;
 
 }
 
@@ -384,7 +405,11 @@ void UKF::AugmentedSigmaPoints(const VectorXd &x, const MatrixXd &P, MatrixXd &X
         Xsig_aug.col(i+1)     = x_aug + sqrt(lambda_ +n_aug_) * L.col(i);
         Xsig_aug.col(i+1+n_aug_) = x_aug - sqrt(lambda_ +n_aug_) * L.col(i);
     }
-   
+    //print result
+    std::cout << "Xsig_aug = " << std::endl << Xsig_aug << std::endl;
+    
+    //write result
+    //Xsig_out = Xsig_aug;
 }
 
 void UKF::SigmaPointPrediction(float delta_t, const MatrixXd &Xsig_aug, MatrixXd &Xsig_pred) {
@@ -433,7 +458,11 @@ void UKF::SigmaPointPrediction(float delta_t, const MatrixXd &Xsig_aug, MatrixXd
         Xsig_pred(3,i) = yaw_p;
         Xsig_pred(4,i) = yawd_p;
     }
+    //print result
+    //std::cout << "Xsig_pred = " << std::endl << Xsig_pred << std::endl;
     
+    //write result
+    //*Xsig_out = Xsig_pred;
     
 }
 
@@ -447,7 +476,7 @@ void UKF::PredictMeanAndCovariance(const MatrixXd &Xsig_pred, VectorXd &x, Matri
     
     //predicted state covariance matrix
     P.fill(0.0);
-    for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
+    for (int i = 0; i < n_sigma_points; i++) {  //iterate over sigma points
         
         // state difference
         VectorXd x_diff = Xsig_pred.col(i) - x;
@@ -457,7 +486,15 @@ void UKF::PredictMeanAndCovariance(const MatrixXd &Xsig_pred, VectorXd &x, Matri
         
         P = P + weights_(i) * x_diff * x_diff.transpose() ;
     }
+    //print result
+    //std::cout << "Predicted state" << std::endl;
+    //std::cout << x << std::endl;
+    //std::cout << "Predicted covariance matrix" << std::endl;
+    //std::cout << P << std::endl;
     
+    //write result
+    //*x_out = x;
+    //*P_out = P;
 }
 
 
